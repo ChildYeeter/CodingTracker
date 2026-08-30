@@ -13,6 +13,8 @@ namespace coding_tracker
 
             connectionString = config.GetConnectionString("DefaultConnection");
             DatabaseManager dbManager = new DatabaseManager();
+
+            dbManager.CreateTable(connectionString);
         }
     }
 }
