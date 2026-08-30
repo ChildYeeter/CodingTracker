@@ -12,9 +12,12 @@ namespace coding_tracker
                 .Build();
 
             connectionString = config.GetConnectionString("DefaultConnection");
+
             DatabaseManager dbManager = new DatabaseManager();
+            UserInput userInput = new UserInput();
 
             dbManager.CreateTable(connectionString);
+            userInput.MainMenu(connectionString);
         }
     }
 }
