@@ -1,4 +1,4 @@
-﻿using Dapper;
+﻿/*using Dapper;
 using Microsoft.Data.Sqlite;
 
 namespace coding_tracker
@@ -13,4 +13,4 @@ namespace coding_tracker
             }
         }
     }
-}
+}*/

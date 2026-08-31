@@ -6,7 +6,7 @@
         {
             bool isClosed = false;
 
-            DataController dataController = new();
+            DatabaseManager dbController = new();
 
 
             while (!isClosed)
@@ -23,7 +23,7 @@
                 switch (Console.ReadLine())
                 {
                     case "1":
-                        dataController.AddNewData(connectionString);
+                        dbController.AddNewData(connectionString);
                         break;
                     /*case "2":
                         ViewAllData();
