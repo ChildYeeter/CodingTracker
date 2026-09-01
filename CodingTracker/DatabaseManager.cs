@@ -41,13 +41,15 @@ namespace coding_tracker
 
                 foreach (CodingSession session in myList)
                 {
-                    Console.WriteLine($"ID: {session.Id} | Duration: {session.Duration}");
+                    Console.WriteLine($"Session: {session.Id} | Duration: {session.Duration}");
                 }
             }
         }
 
         internal void AddNewData(string connectionString)
         {
+            Console.Clear();
+
             DateTime startTime = GetDateInput("Please enter when you started your task: (dd-MM-yyyy HH:mm:ss)");
             DateTime endTime = GetDateInput("Please enter when you ended your task: (dd-MM-yyyy HH:mm:ss)");
 
@@ -83,6 +85,43 @@ namespace coding_tracker
                 Console.WriteLine("Invalid date format, please make sure it's in dd-MM-yyyy HH:mm:ss.");
                 dateInput = Console.ReadLine();
             }
+
+            return value;
+        }
+
+        internal void DeleteData(string connectionString)
+        {
+            Console.Clear();
+            ViewAllData(connectionString);
+
+            int toDelete = GetInteger("Please select the session you want to delete");
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var sql = $"DELETE FROM coding WHERE ID = {toDelete}";
+                int deletedRows = connection.Execute(sql);
+
+                if (deletedRows == 0)
+                {
+                    Console.WriteLine("The row doesn't exist");
+                }
+                else
+                    Console.WriteLine("The row has been deleted");
+                connection.Close();
+            }
+
+        }
+
+        internal void UpdateData(string connectionString)
+        {
+
+        }
+
+        internal int GetInteger(string message)
+        {
+            Console.WriteLine(message);
+            int.TryParse(Console.ReadLine(), out int value);
 
             return value;
         }
