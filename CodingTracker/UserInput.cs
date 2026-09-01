@@ -25,15 +25,15 @@
                     case "1":
                         dbController.AddNewData(connectionString);
                         break;
-                    /*case "2":
-                        ViewAllData();
-                        break;
-                    case "3":
-                        UpdateData();
-                        break;
-                    case "4":
-                        DeleteData();*/
-                        break;
+                        case "2":
+                        dbController.ViewAllData(connectionString);
+                            break;
+                        /*case "3":
+                        dbController.UpdateData();
+                            break;
+                        case "4":
+                        dbController.DeleteData();
+                        break;*/
                     case "0":
                         isClosed = true;
                         break;

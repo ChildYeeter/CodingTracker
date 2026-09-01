@@ -7,11 +7,6 @@ namespace coding_tracker
 {
     internal class DatabaseManager
     {
-        public DatabaseManager()
-        {
-
-        }
-
         internal void CreateTable(string connectionString)
         {
             using (var connection = new SqliteConnection(connectionString))
@@ -29,18 +24,50 @@ namespace coding_tracker
             }
         }
 
+        internal void ViewAllData(string connectionString)
+        {
+            Console.Clear();
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+
+                List<CodingSession> myList = connection.Query<CodingSession>("SELECT * FROM coding;").ToList();
+
+                if (myList.Count == 0)
+                {
+                    Console.WriteLine("No data was found");
+                }
+
+                foreach (CodingSession session in myList)
+                {
+                    Console.WriteLine($"ID: {session.Id} | Duration: {session.Duration}");
+                }
+            }
+        }
+
         internal void AddNewData(string connectionString)
         {
             DateTime startTime = GetDateInput("Please enter when you started your task: (dd-MM-yyyy HH:mm:ss)");
             DateTime endTime = GetDateInput("Please enter when you ended your task: (dd-MM-yyyy HH:mm:ss)");
 
-            TimeSpan Duration = (startTime - endTime) < TimeSpan.Zero? -(startTime - endTime) : (startTime - endTime);
+            TimeSpan Duration = endTime - startTime;
+
+            if(endTime < startTime)
+            {
+                Console.WriteLine("End time cannot be before the start time");
+            }
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                var sql = $"INSERT INTO coding (StartTime, EndTime, Duration) VALUES ('{startTime}', '{endTime}', '{Duration}')";
+                var sql = $"INSERT INTO coding (StartTime, EndTime, Duration) VALUES (@StartTime, @EndTime, @Duration)";
 
-                connection.Execute(sql);
+                connection.Execute(sql, new CodingSession()
+                {
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    Duration = Duration.ToString()
+                });
             }
         }
 
