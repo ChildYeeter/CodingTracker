@@ -50,18 +50,26 @@ namespace coding_tracker
         {
             Console.Clear();
 
-            DateTime startTime = GetDateInput("Please enter when you started your task: (dd-MM-yyyy HH:mm:ss)");
-            DateTime endTime = GetDateInput("Please enter when you ended your task: (dd-MM-yyyy HH:mm:ss)");
+            DateTime startTime;
+            DateTime endTime;
+
+            startTime = GetDateInput("Please enter when you started your task: (dd-MM-yyyy HH:mm:ss)");
+            endTime = GetDateInput("Please enter when you ended your task: (dd-MM-yyyy HH:mm:ss)");
+
+
+            while(!Validation.CheckTimeSpanValidation(startTime, endTime))
+            {
+                startTime = GetDateInput("Please enter the correct startTime: (dd-MM-yyyy HH:mm:ss)");
+                endTime = GetDateInput("Please enter the correct endTime: (dd-MM-yyyy HH:mm:ss)");
+            }
 
             TimeSpan Duration = endTime - startTime;
 
-            if(endTime < startTime)
-                Console.WriteLine("End time cannot be before the start time");
             
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                var sql = $"INSERT INTO coding (StartTime, EndTime, Duration) VALUES (@StartTime, @EndTime, @Duration)";
+                var sql = "INSERT INTO coding (StartTime, EndTime, Duration) VALUES (@StartTime, @EndTime, @Duration)";
 
                 connection.Execute(sql, new CodingSession()
                 {
@@ -77,18 +85,10 @@ namespace coding_tracker
             Console.WriteLine(message);
             string dateInput = Console.ReadLine();
 
-            DateTime value;
-
-            while(!DateTime.TryParseExact(dateInput, "dd-MM-yyyy HH:mm:ss", new CultureInfo("en-IN"), DateTimeStyles.None, out value))
-            {
-                Console.WriteLine("Invalid date format, please make sure it's in dd-MM-yyyy HH:mm:ss.");
-                dateInput = Console.ReadLine();
-            }
-
-            return value;
+            return Validation.CheckDateValidation(dateInput);
         }
 
-        internal void DeleteData(string connectionString)
+        internal void DeleteData(string connectionString)   
         {
             Console.Clear();
             ViewAllData(connectionString);
@@ -122,12 +122,16 @@ namespace coding_tracker
             DateTime newStartTime = GetDateInput("Please enter the updated start time:(dd-MM-yyyy HH:mm:ss)");
             DateTime newEndTime = GetDateInput("Please enter the updated end time:(dd-MM-yyyy HH:mm:ss)");
 
+
+            if (newEndTime < newStartTime)
+            {
+                Console.WriteLine("End time cannot be before the start time");
+                UpdateData(connectionString);
+            }
+
             TimeSpan newDuration = newEndTime - newStartTime;
 
-            if (newEndTime < newStartTime) 
-                Console.WriteLine("End time cannot be before the start time");
-
-            using(var connection = new SqliteConnection(connectionString))
+                using (var connection = new SqliteConnection(connectionString))
             {
                 var sql = @$"UPDATE coding
                             SET StartTime = @StartTime,
@@ -147,9 +151,9 @@ namespace coding_tracker
         internal int GetInteger(string message)
         {
             Console.WriteLine(message);
-            int.TryParse(Console.ReadLine(), out int value);
+            int val = Validation.CheckIntegerValitaion(Console.ReadLine());
 
-            return value;
+            return val;
         }
     }
 }
