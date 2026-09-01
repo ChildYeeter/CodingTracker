@@ -56,9 +56,8 @@ namespace coding_tracker
             TimeSpan Duration = endTime - startTime;
 
             if(endTime < startTime)
-            {
                 Console.WriteLine("End time cannot be before the start time");
-            }
+            
 
             using (var connection = new SqliteConnection(connectionString))
             {
@@ -115,7 +114,34 @@ namespace coding_tracker
 
         internal void UpdateData(string connectionString)
         {
+            Console.Clear();
+            ViewAllData(connectionString);
 
+            int toUpdate = GetInteger("Please enter the session you want to update: ");
+
+            DateTime newStartTime = GetDateInput("Please enter the updated start time:(dd-MM-yyyy HH:mm:ss)");
+            DateTime newEndTime = GetDateInput("Please enter the updated end time:(dd-MM-yyyy HH:mm:ss)");
+
+            TimeSpan newDuration = newEndTime - newStartTime;
+
+            if (newEndTime < newStartTime) 
+                Console.WriteLine("End time cannot be before the start time");
+
+            using(var connection = new SqliteConnection(connectionString))
+            {
+                var sql = @$"UPDATE coding
+                            SET StartTime = @StartTime,
+                            EndTime = @EndTime,
+                            Duration = @Duration
+                            WHERE ID = {toUpdate}";
+
+                connection.Execute(sql, new CodingSession
+                {
+                    StartTime = newStartTime,
+                    EndTime = newEndTime,
+                    Duration = newDuration.ToString()
+                });
+            }
         }
 
         internal int GetInteger(string message)
