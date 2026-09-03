@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Spectre;
 using Microsoft.Data.Sqlite;
 using Spectre.Console;
 
@@ -40,7 +39,7 @@ namespace coding_tracker
 
         static internal void AddNewData(string connectionString)
         {
-            Console.Clear();
+            AnsiConsole.Clear();
 
             DateTime startTime;
             DateTime endTime;
@@ -52,7 +51,7 @@ namespace coding_tracker
             while (!Validation.CheckTimeSpanValidation(startTime, endTime))
             {
                 startTime = GetDateInput("[bold]Please enter the correct startTime: (dd-MM-yyyy HH:mm:ss)[/]");
-                endTime = GetDateInput("[bold]lease enter the correct endTime: (dd-MM-yyyy HH:mm:ss)[/]");
+                endTime = GetDateInput("[bold]Please enter the correct endTime: (dd-MM-yyyy HH:mm:ss)[/]");
             }
 
             TimeSpan Duration = endTime - startTime;
@@ -82,16 +81,16 @@ namespace coding_tracker
 
         static internal void DeleteData(string connectionString)
         {
-            Console.Clear();
+            AnsiConsole.Clear();
             ViewAllData(connectionString);
 
             int toDelete = GetInteger("[bold]Please select the session you want to delete[/]");
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                var sql = $"DELETE FROM coding WHERE ID = {toDelete}";
+                var sql = "DELETE FROM coding WHERE ID = @Id";
 
-                int deletedRows = connection.Execute(sql);
+                int deletedRows = connection.Execute(sql, new {Id = toDelete});
 
                 if (deletedRows == 0)
                 {
@@ -107,43 +106,58 @@ namespace coding_tracker
         {
             Console.Clear();
             ViewAllData(connectionString);
-
             int toUpdate = GetInteger("[bold]Please enter the session you want to update: [/]");
 
-            DateTime newStartTime = GetDateInput("[bold]Please enter the updated start time:(dd-MM-yyyy HH:mm:ss)[/]");
-            DateTime newEndTime = GetDateInput("[bold]Please enter the updated end time:(dd-MM-yyyy HH:mm:ss)[/]");
-
-
-            if (newEndTime < newStartTime)
-            {
-                AnsiConsole.MarkupLine("[bold yellow]End time cannot be before the start time[/]");
-                UpdateData(connectionString);
-            }
-
-            TimeSpan newDuration = newEndTime - newStartTime;
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                var sql = @$"UPDATE coding
+
+
+                var checkQuery = "SELECT EXISTS(SELECT 1 FROM coding WHERE ID = @Id)";
+
+                int exists = connection.ExecuteScalar<int>(checkQuery, new {Id = toUpdate});
+
+                if (exists == 0)
+                    AnsiConsole.MarkupLine($"[bold yellow]The session no. {toUpdate} doesn't exist.[/]");
+
+                else
+                {
+
+                    DateTime newStartTime = GetDateInput("[bold]Please enter the updated start time:(dd-MM-yyyy HH:mm:ss)[/]");
+                    DateTime newEndTime = GetDateInput("[bold]Please enter the updated end time:(dd-MM-yyyy HH:mm:ss)[/]");
+
+
+                    while (newEndTime < newStartTime)
+                    {
+                        AnsiConsole.MarkupLine("[bold yellow]End time cannot be before the start time[/]");
+                        newStartTime = GetDateInput("[bold]Please enter the updated start time:(dd-MM-yyyy HH:mm:ss)[/]");
+                        newEndTime = GetDateInput("[bold]Please enter the updated end time:(dd-MM-yyyy HH:mm:ss)[/]");
+                    }
+
+                    TimeSpan newDuration = newEndTime - newStartTime;
+
+                    var sql = @"UPDATE coding
                             SET StartTime = @StartTime,
                             EndTime = @EndTime,
                             Duration = @Duration
-                            WHERE ID = {toUpdate}";
+                            WHERE ID = @Id";
 
-                connection.Execute(sql, new CodingSession
-                {
-                    StartTime = newStartTime,
-                    EndTime = newEndTime,
-                    Duration = newDuration.ToString()
-                });
+                    connection.Execute(sql, new CodingSession
+                    {
+                        StartTime = newStartTime,
+                        EndTime = newEndTime,
+                        Duration = newDuration.ToString(),
+                        Id = toUpdate
+                    });
+                    AnsiConsole.MarkupLine($"[green bold]Your data for session no.{toUpdate} has been updated[/]");
+                }
             }
-            AnsiConsole.MarkupLine($"[green bold]Your data for session {toUpdate} has been updated[/]");
         }
 
         static internal int GetInteger(string message)
         {
             AnsiConsole.MarkupLine(message);
-            int val = Validation.CheckIntegerValitaion(Console.ReadLine());
+            int val = Validation.CheckIntegerValidation(Console.ReadLine());
 
             return val;
         }

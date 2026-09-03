@@ -10,16 +10,6 @@ namespace coding_tracker
 
             while (!isClosed)
             {
-
-                /*Console.WriteLine("---------------------------------------------------------");
-                Console.WriteLine("What would you like to do?");
-                Console.WriteLine("1: Add");
-                Console.WriteLine("2: View");
-                Console.WriteLine("3: Update");
-                Console.WriteLine("4: Delete");
-                Console.WriteLine("0: Quit");
-                Console.WriteLine("---------------------------------------------------------");*/
-
                 var myTable = new Table()
                     .AddColumn("What would you like to do?")
                     .AddRow("[green]1: Add[/]")

@@ -7,7 +7,7 @@ namespace coding_tracker
     internal static class Validation
     {
 
-        internal static int CheckIntegerValitaion(string x)
+        internal static int CheckIntegerValidation(string x)
         {
             int.TryParse(x, out int val);
             return val;
