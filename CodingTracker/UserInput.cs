@@ -6,9 +6,6 @@
         {
             bool isClosed = false;
 
-            DatabaseManager dbManager = new();
-
-
             while (!isClosed)
             {
                 Console.WriteLine("---------------------------------------------------------");
@@ -23,18 +20,20 @@
                 switch (Console.ReadLine())
                 {
                     case "1":
-                        dbManager.AddNewData(connectionString);
+                        CRUDManager.AddNewData(connectionString);
                         break;
                     case "2":
-                        dbManager.ViewAllData(connectionString);
+                        CRUDManager.ViewAllData(connectionString);
                         break;
                     case "3":
-                        dbManager.UpdateData(connectionString);
+                        CRUDManager.UpdateData(connectionString);
                         break;
                     case "4":
-                        dbManager.DeleteData(connectionString);
+                        CRUDManager.DeleteData(connectionString);
                         break;
                     case "0":
+                        Console.WriteLine("Goodbye!\n(Press any key to quit)");
+                        Console.ReadKey(true);
                         isClosed = true;
                         break;
                     default:

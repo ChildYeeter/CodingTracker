@@ -1,30 +1,11 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
-using System.Globalization;
-
 
 namespace coding_tracker
 {
-    internal class DatabaseManager
+    static internal class CRUDManager
     {
-        internal void CreateTable(string connectionString)
-        {
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                string sql = """
-                    CREATE TABLE IF NOT EXISTS coding(
-                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        StartTime TEXT NOT NULL, 
-                        EndTime TEXT NOT NULL,
-                        Duration TEXT NOT NULL
-                        );
-                    """;
-
-                connection.Execute(sql);
-            }
-        }
-
-        internal void ViewAllData(string connectionString)
+        static internal void ViewAllData(string connectionString)
         {
             Console.Clear();
 
@@ -46,7 +27,7 @@ namespace coding_tracker
             }
         }
 
-        internal void AddNewData(string connectionString)
+        static internal void AddNewData(string connectionString)
         {
             Console.Clear();
 
@@ -57,7 +38,7 @@ namespace coding_tracker
             endTime = GetDateInput("Please enter when you ended your task: (dd-MM-yyyy HH:mm:ss)");
 
 
-            while(!Validation.CheckTimeSpanValidation(startTime, endTime))
+            while (!Validation.CheckTimeSpanValidation(startTime, endTime))
             {
                 startTime = GetDateInput("Please enter the correct startTime: (dd-MM-yyyy HH:mm:ss)");
                 endTime = GetDateInput("Please enter the correct endTime: (dd-MM-yyyy HH:mm:ss)");
@@ -65,7 +46,7 @@ namespace coding_tracker
 
             TimeSpan Duration = endTime - startTime;
 
-            
+
 
             using (var connection = new SqliteConnection(connectionString))
             {
@@ -80,7 +61,7 @@ namespace coding_tracker
             }
         }
 
-        internal DateTime GetDateInput(string message)
+        static internal DateTime GetDateInput(string message)
         {
             Console.WriteLine(message);
             string dateInput = Console.ReadLine();
@@ -88,7 +69,7 @@ namespace coding_tracker
             return Validation.CheckDateValidation(dateInput);
         }
 
-        internal void DeleteData(string connectionString)   
+        static internal void DeleteData(string connectionString)
         {
             Console.Clear();
             ViewAllData(connectionString);
@@ -112,7 +93,7 @@ namespace coding_tracker
 
         }
 
-        internal void UpdateData(string connectionString)
+        static internal void UpdateData(string connectionString)
         {
             Console.Clear();
             ViewAllData(connectionString);
@@ -131,7 +112,7 @@ namespace coding_tracker
 
             TimeSpan newDuration = newEndTime - newStartTime;
 
-                using (var connection = new SqliteConnection(connectionString))
+            using (var connection = new SqliteConnection(connectionString))
             {
                 var sql = @$"UPDATE coding
                             SET StartTime = @StartTime,
@@ -148,7 +129,7 @@ namespace coding_tracker
             }
         }
 
-        internal int GetInteger(string message)
+        static internal int GetInteger(string message)
         {
             Console.WriteLine(message);
             int val = Validation.CheckIntegerValitaion(Console.ReadLine());

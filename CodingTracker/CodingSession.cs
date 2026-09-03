@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace coding_tracker
+﻿namespace coding_tracker
 {
     internal class CodingSession
     {
