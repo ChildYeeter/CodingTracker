@@ -1,5 +1,7 @@
 ﻿using Dapper;
+using Spectre;
 using Microsoft.Data.Sqlite;
+using Spectre.Console;
 
 namespace coding_tracker
 {
@@ -7,22 +9,31 @@ namespace coding_tracker
     {
         static internal void ViewAllData(string connectionString)
         {
-            Console.Clear();
+            AnsiConsole.Clear();
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                connection.Open();
-
                 List<CodingSession> myList = connection.Query<CodingSession>("SELECT * FROM coding;").ToList();
 
                 if (myList.Count == 0)
                 {
-                    Console.WriteLine("No data was found");
+                    AnsiConsole.MarkupLine("[bold DarkOrange]No data was found[/]");
                 }
 
-                foreach (CodingSession session in myList)
+                else
                 {
-                    Console.WriteLine($"Session: {session.Id} | Duration: {session.Duration}");
+                    var table = new Table();
+                    table.HeavyBorder();
+                    table.BorderColor(Color.Magenta3);
+                    table.AddColumn("[bold blue]ID[/]");
+                    table.AddColumn("[bold blue]Duration[/]");
+
+                    foreach (CodingSession session in myList)
+                    {
+                        /*AnsiConsole.MarkupLine($"[bold]Session:[/] {session.Id} | [bold]Duration:[/] {session.Duration}");*/
+                        table.AddRow($"{session.Id}", $"{session.Duration}");
+                    }
+                    AnsiConsole.Write(table);
                 }
             }
         }
@@ -34,14 +45,14 @@ namespace coding_tracker
             DateTime startTime;
             DateTime endTime;
 
-            startTime = GetDateInput("Please enter when you started your task: (dd-MM-yyyy HH:mm:ss)");
-            endTime = GetDateInput("Please enter when you ended your task: (dd-MM-yyyy HH:mm:ss)");
+            startTime = GetDateInput("[bold]Please enter when you started your task: (dd-MM-yyyy HH:mm:ss)[/]");
+            endTime = GetDateInput("[bold]Please enter when you ended your task: (dd-MM-yyyy HH:mm:ss)[/]");
 
 
             while (!Validation.CheckTimeSpanValidation(startTime, endTime))
             {
-                startTime = GetDateInput("Please enter the correct startTime: (dd-MM-yyyy HH:mm:ss)");
-                endTime = GetDateInput("Please enter the correct endTime: (dd-MM-yyyy HH:mm:ss)");
+                startTime = GetDateInput("[bold]Please enter the correct startTime: (dd-MM-yyyy HH:mm:ss)[/]");
+                endTime = GetDateInput("[bold]lease enter the correct endTime: (dd-MM-yyyy HH:mm:ss)[/]");
             }
 
             TimeSpan Duration = endTime - startTime;
@@ -63,7 +74,7 @@ namespace coding_tracker
 
         static internal DateTime GetDateInput(string message)
         {
-            Console.WriteLine(message);
+            AnsiConsole.MarkupLine(message);
             string dateInput = Console.ReadLine();
 
             return Validation.CheckDateValidation(dateInput);
@@ -74,21 +85,20 @@ namespace coding_tracker
             Console.Clear();
             ViewAllData(connectionString);
 
-            int toDelete = GetInteger("Please select the session you want to delete");
+            int toDelete = GetInteger("[bold]Please select the session you want to delete[/]");
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                connection.Open();
                 var sql = $"DELETE FROM coding WHERE ID = {toDelete}";
+
                 int deletedRows = connection.Execute(sql);
 
                 if (deletedRows == 0)
                 {
-                    Console.WriteLine("The row doesn't exist");
+                    AnsiConsole.MarkupLine("[bold DarkOrange]The row doesn't exist[/]");
                 }
                 else
-                    Console.WriteLine("The row has been deleted");
-                connection.Close();
+                    AnsiConsole.MarkupLine("[DarkOrange bold]The row has been deleted[/]");
             }
 
         }
@@ -98,15 +108,15 @@ namespace coding_tracker
             Console.Clear();
             ViewAllData(connectionString);
 
-            int toUpdate = GetInteger("Please enter the session you want to update: ");
+            int toUpdate = GetInteger("[bold]Please enter the session you want to update: [/]");
 
-            DateTime newStartTime = GetDateInput("Please enter the updated start time:(dd-MM-yyyy HH:mm:ss)");
-            DateTime newEndTime = GetDateInput("Please enter the updated end time:(dd-MM-yyyy HH:mm:ss)");
+            DateTime newStartTime = GetDateInput("[bold]Please enter the updated start time:(dd-MM-yyyy HH:mm:ss)[/]");
+            DateTime newEndTime = GetDateInput("[bold]Please enter the updated end time:(dd-MM-yyyy HH:mm:ss)[/]");
 
 
             if (newEndTime < newStartTime)
             {
-                Console.WriteLine("End time cannot be before the start time");
+                AnsiConsole.MarkupLine("[bold yellow]End time cannot be before the start time[/]");
                 UpdateData(connectionString);
             }
 
@@ -127,11 +137,12 @@ namespace coding_tracker
                     Duration = newDuration.ToString()
                 });
             }
+            AnsiConsole.MarkupLine($"[green bold]Your data for session {toUpdate} has been updated[/]");
         }
 
         static internal int GetInteger(string message)
         {
-            Console.WriteLine(message);
+            AnsiConsole.MarkupLine(message);
             int val = Validation.CheckIntegerValitaion(Console.ReadLine());
 
             return val;

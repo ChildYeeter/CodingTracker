@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Spectre.Console;
 
 namespace coding_tracker
 {
@@ -8,6 +9,7 @@ namespace coding_tracker
         static void Main(string[] args)
         {
             Console.Title = "Coding Tracker";
+            AnsiConsole.MarkupLine("[bold blue]Welcome[/] to [green]Coding Tracker[/]!");
 
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")

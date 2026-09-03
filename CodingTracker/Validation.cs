@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
-
+using Spectre;
+using Spectre.Console;
 
 namespace coding_tracker
 {
@@ -16,8 +17,8 @@ namespace coding_tracker
             DateTime value;
             while (!DateTime.TryParseExact(dateInput, "dd-MM-yyyy HH:mm:ss", new CultureInfo("en-IN"), DateTimeStyles.None, out value))
             {
-                Console.WriteLine("Invalid date format, please make sure it's in dd-MM-yyyy HH:mm:ss.");
-                dateInput = Console.ReadLine();
+                AnsiConsole.MarkupLine("[bold red]Invalid date format[/], [bold]please make sure it's in[/] [bold yellow]dd-MM-yyyy HH:mm:ss.[/]");
+                dateInput = AnsiConsole.Ask<string>("Date:");
             }
 
             return value;
@@ -27,7 +28,7 @@ namespace coding_tracker
         {
             if (endTime < startTime)
             {
-                Console.WriteLine("Incorrect! End Time cannot be less than the Start Time.");
+                AnsiConsole.MarkupLine("[bold red]Incorrect![/] [yellow bold]End Time cannot be less than the Start Time[/].");
                 return false;
             }
             else
